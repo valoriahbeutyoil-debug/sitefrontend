@@ -17,6 +17,7 @@
   <script defer src="cart.js"></script>
 </head>
 <body>
+  <script src="frontend/js/category-init.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         fetchProducts('kuwaiti-dinar').then(products => renderProducts(products, '.product-grid'));

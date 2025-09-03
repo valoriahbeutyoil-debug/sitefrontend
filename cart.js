@@ -156,7 +156,7 @@
         <td><input type="number" min="1" value="${item.qty}" data-id="${item.id}" data-variant="${item.variant}" class="qty-input" /></td>
         <td>$${item.price.toFixed(2)}</td>
         <td>$${line.toFixed(2)}</td>
-        <td><button class="btn remove" data-id="${item.id}" data-variant="${item.variant}">Remove</button></td>`;
+        <td><button class="cart-remove-btn" title="Remove" data-id="${item.id}" data-variant="${item.variant}">&times;</button></td>`;
       tbody.appendChild(row);
     });
     table.appendChild(tbody);
@@ -173,7 +173,7 @@
     container.querySelectorAll('.qty-input').forEach(inp => {
       inp.addEventListener('change', function(){ setQty(this.getAttribute('data-id'), this.getAttribute('data-variant'), Number(this.value)); renderCartTable(container); });
     });
-    container.querySelectorAll('.btn.remove').forEach(btn => {
+    container.querySelectorAll('.cart-remove-btn').forEach(btn => {
       btn.addEventListener('click', function(){ removeItem(this.getAttribute('data-id'), this.getAttribute('data-variant')); renderCartTable(container); });
     });
     const go = container.querySelector('#proceed-checkout');

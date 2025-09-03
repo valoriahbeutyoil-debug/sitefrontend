@@ -237,6 +237,7 @@ class AdminPanel {
             category: formData.get('category'),
             price: parseFloat(formData.get('price')),
             description: formData.get('description'),
+            quickReview: formData.get('quickReview'),
             image: 'sideimage.jpg' // In real app, handle file upload
         };
         try {
@@ -269,7 +270,7 @@ class AdminPanel {
     async deleteProduct(id) {
         if (confirm('Are you sure you want to delete this product?')) {
             try {
-                const res = await fetch(`https://backend-crqd.onrender.com/products/${id}`, {
+                const res = await fetch(`${API_BASE_URL}/products/${id}`, {
                     method: 'DELETE'
                 });
                 if (!res.ok) throw new Error('Failed to delete product');
