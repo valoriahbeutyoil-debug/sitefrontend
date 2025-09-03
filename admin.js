@@ -209,17 +209,18 @@ class AdminPanel {
         container.innerHTML = filtered.map(product => `
             <div class="product-card">
                 <div class="product-image">
-                    <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img src="${product.image}" alt="${product.name}" style="width: 220px; height: 220px; object-fit: cover;">
                 </div>
                 <div class="product-info">
                     <h3>${product.name}</h3>
                     <div class="product-price">$${product.price.toFixed(2)}</div>
                     <div class="product-category">${product.category}</div>
+                    <div class="product-review">${product.quickReview ? product.quickReview : ''}</div>
                     <div class="product-actions">
-                        <button class="btn btn-secondary" onclick="adminPanel.editProduct(${product.id})">
+                        <button class="btn btn-secondary" onclick="adminPanel.editProduct('${product._id}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="btn btn-secondary" onclick="adminPanel.deleteProduct(${product.id})">
+                        <button class="btn btn-secondary" onclick="adminPanel.deleteProduct('${product._id}')">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
@@ -256,7 +257,7 @@ class AdminPanel {
     }
 
     async editProduct(id) {
-        const product = this.products.find(p => p.id === id);
+    const product = this.products.find(p => p._id === id);
         if (product) {
             // Example: open edit modal and update product
             // For now, just show notification

@@ -1,3 +1,22 @@
+/* Professional Quick Review styling for product cards */
+.product-review {
+    margin: 8px 0;
+    padding: 8px 12px;
+    background: #f5f7fa;
+    border-left: 4px solid #007bff;
+    font-style: italic;
+    color: #333;
+    font-size: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+}
+.product-review::before {
+    content: '\1F4DD'; /* Pencil icon */
+    margin-right: 8px;
+    font-size: 1.2em;
+    color: #007bff;
+}
 /* Admin Panel Styles */
 * {
     margin: 0;
