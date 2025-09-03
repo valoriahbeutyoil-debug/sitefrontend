@@ -1,3 +1,25 @@
+/* Professional Quick Review Button styling */
+.quick-review-btn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    display: inline-flex;
+    align-items: center;
+}
+.quick-review-btn:hover {
+    background: #0056b3;
+}
+.quick-review-btn i {
+    margin-right: 6px;
+    font-size: 1.1em;
+}
 /* Professional Quick Review styling for product cards */
 .product-review {
     margin: 8px 0;
