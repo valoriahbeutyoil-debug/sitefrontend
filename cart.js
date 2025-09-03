@@ -55,7 +55,13 @@
   function updateCartTotal(){
     const items = readCart();
     const subtotal = items.reduce((s,i)=>s+(i.price * i.qty),0);
-    const shipping = 30.00; // Fixed shipping cost
+    let shipping = 30.00;
+    try {
+      const settings = JSON.parse(localStorage.getItem('docushop_settings') || '{}');
+      if (settings && settings.shippingDiscreet) {
+        shipping = parseFloat(settings.shippingDiscreet) || shipping;
+      }
+    } catch {}
     const total = subtotal + shipping;
     
     // Update cart total display in header/navbar
