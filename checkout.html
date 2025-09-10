@@ -726,26 +726,22 @@
             </div>
           </div>
 
-          <div class="payment-section">
-            <h4 class="payment-title">
-              <i class="fas fa-credit-card"></i> Payment Method
-            </h4>
+         <div class="payment-section">
+  <h4 class="payment-title">
+    <i class="fas fa-credit-card"></i> Payment Method
+  </h4>
 
-            <label for="crypto-select" class="payment-label">
-              Select Cryptocurrency:
-            </label>
-            <select id="crypto-select" class="payment-select" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; width: 100%;">
-              <option value="">--Choose a cryptocurrency--</option>
-              <option value="bitcoin" data-address="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa">Bitcoin</option>
-              <option value="ethereum" data-address="0x32Be343B94f860124dC4fEe278FDCBD38C102D88">Ethereum</option>
-              <option value="litecoin" data-address="LcWbmH6v9t5H8RuHxQjy36dpLe5sSRk7Sq">Litecoin</option>
-            </select>
+  <!-- Dynamic payment methods container -->
+  <div class="payment-methods" id="dynamic-payment-methods">
+    <!-- Methods will load here from backend -->
+  </div>
 
-            <div id="crypto-address" class="payment-address" style="margin-top: 15px; display: none;">
-              <h4>Payment Address:</h4>
-              <p id="address-text"></p>
-            </div>
-          </div>
+  <!-- Crypto address display (shown only when crypto is chosen) -->
+  <div id="crypto-address" class="payment-address" style="margin-top: 15px; display: none;">
+    <h4>Payment Address:</h4>
+    <p id="address-text"></p>
+  </div>
+</div>
 
           <script>
             document.getElementById('crypto-select').addEventListener('change', function() {
@@ -794,89 +790,122 @@
       </div>
     </footer>
     <script>
-      function toggleCoupon() {
-        alert('Coupon functionality will be available soon! Stay tuned for special offers.');
-      }
+  function toggleCoupon() {
+    alert('Coupon functionality will be available soon! Stay tuned for special offers.');
+  }
 
-      async function placeOrder() {
-        const form = document.getElementById('checkout-form');
-        if (!form.checkValidity()) {
-          alert('⚠️ Please fill in all required fields to continue with your order.');
-          form.reportValidity();
-          return;
-        }
-        // Gather billing info
-        const billing = {};
-        Array.from(form.elements).forEach(el => {
-          if (el.name) billing[el.name] = el.value;
-        });
-        // Get cart items from localStorage
-        let cart = [];
-        try {
-          cart = JSON.parse(localStorage.getItem('docushop_cart_items') || '[]');
-        } catch {}
-        // Send to backend
-        try {
-          const res = await fetch('http://localhost:4000/order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ billing, cart })
-          });
-          if (!res.ok) throw new Error('Order failed');
-          const data = await res.json();
-          // Clear cart
-          localStorage.removeItem('docushop_cart_items');
-          alert('🎉 Order placed successfully!\n\nOrder ID: #' + (data.orderId || 'N/A') + '\nPayment instructions have been sent to your email address.');
-          window.location.href = 'index.html';
-        } catch (err) {
-          alert('❌ Error placing order: ' + err.message);
-        }
-      }
+  async function placeOrder() {
+    const form = document.getElementById('checkout-form');
+    if (!form.checkValidity()) {
+      alert('⚠️ Please fill in all required fields to continue with your order.');
+      form.reportValidity();
+      return;
+    }
 
-      // Payment method selection
+    // Gather billing info
+    const billing = {};
+    Array.from(form.elements).forEach(el => {
+      if (el.name) billing[el.name] = el.value;
+    });
+
+    // Get cart items from localStorage
+    let cart = [];
+    try {
+      cart = JSON.parse(localStorage.getItem('docushop_cart_items') || '[]');
+    } catch {}
+
+    // Send to backend
+    try {
+      const res = await fetch('http://localhost:4000/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ billing, cart })
+      });
+      if (!res.ok) throw new Error('Order failed');
+      const data = await res.json();
+
+      // Clear cart
+      localStorage.removeItem('docushop_cart_items');
+      alert('🎉 Order placed successfully!\n\nOrder ID: #' + (data.orderId || 'N/A') + '\nPayment instructions have been sent to your email address.');
+      window.location.href = 'index.html';
+    } catch (err) {
+      alert('❌ Error placing order: ' + err.message);
+    }
+  }
+
+  // Payment method selection
+  document.querySelectorAll('.payment-option').forEach(option => {
+    option.addEventListener('click', function() {
+      document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      this.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+
+  // Form validation styling
+  document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
+    input.addEventListener('blur', function() {
+      if (this.hasAttribute('required') && !this.value.trim()) {
+        this.style.borderColor = '#ef4444';
+      } else {
+        this.style.borderColor = '#e5e7eb';
+      }
+    });
+
+    input.addEventListener('focus', function() {
+      this.style.borderColor = '#3b82f6';
+    });
+  });
+</script>
+
+<!-- ✅ REMOVE this block: crypto-select -->
+<!-- <script>
+  document.getElementById('crypto-select')...
+</script> -->
+
+<script>
+  const API_BASE_URL = 'https://correct-backend-gu05.onrender.com';
+  async function loadPaymentOptions() {
+    const paymentSection = document.querySelector('.payment-section');
+    if (!paymentSection) return;
+
+    // Add container for dynamic methods
+    let html = '<h4 class="payment-title"><i class="fas fa-credit-card"></i> Payment Method</h4>';
+    html += '<div class="payment-methods" id="dynamic-payment-methods"></div>';
+    paymentSection.innerHTML = html + paymentSection.innerHTML;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/payment-methods/active`);
+      const methods = await res.json();
+
+      let optionsHtml = '';
+      methods.forEach(method => {
+        if (method.type === 'Bank') {
+          optionsHtml += `<div class="payment-option"><input type="radio" name="paymentType" value="bank" class="payment-radio"> <span class="payment-label">Bank Transfer</span><span class="payment-description">${method.credentials.bankName} - ${method.credentials.accountName} (${method.credentials.accountNumber})</span></div>`;
+        } else if (method.type === 'Skype') {
+          optionsHtml += `<div class="payment-option"><input type="radio" name="paymentType" value="skype" class="payment-radio"> <span class="payment-label">Skype</span><span class="payment-description">Skype ID: ${method.credentials.skypeId}</span></div>`;
+        } else if (method.type === 'PayPal') {
+          optionsHtml += `<div class="payment-option"><input type="radio" name="paymentType" value="paypal" class="payment-radio"> <span class="payment-label">PayPal</span><span class="payment-description">PayPal Email: ${method.credentials.paypalEmail}</span></div>`;
+        } else if (method.type === 'Crypto') {
+          optionsHtml += `<div class="payment-option"><input type="radio" name="paymentType" value="crypto" class="payment-radio"> <span class="payment-label">Crypto</span><span class="payment-description">Bitcoin: ${method.credentials.bitcoin}<br>Ethereum: ${method.credentials.ethereum}<br>USDT: ${method.credentials.usdt}</span></div>`;
+        }
+      });
+
+      document.getElementById('dynamic-payment-methods').innerHTML = optionsHtml;
+
+      // Add selection logic
       document.querySelectorAll('.payment-option').forEach(option => {
         option.addEventListener('click', function() {
-          // Remove selected class from all options
           document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
-          
-          // Add selected class to clicked option
           this.classList.add('selected');
-          
-          // Check the radio button
           this.querySelector('input[type="radio"]').checked = true;
         });
       });
-
-      // Form validation styling
-      document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
-        input.addEventListener('blur', function() {
-          if (this.hasAttribute('required') && !this.value.trim()) {
-            this.style.borderColor = '#ef4444';
-          } else {
-            this.style.borderColor = '#e5e7eb';
-          }
-        });
-
-        input.addEventListener('focus', function() {
-          this.style.borderColor = '#3b82f6';
-        });
-      });
-    </script>
-    <script>
-      document.getElementById('crypto-select').addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        const paymentAddressDiv = document.getElementById('crypto-address');
-        const addressText = document.getElementById('address-text');
-
-        if (this.value) {
-          const paymentAddress = selectedOption.getAttribute('data-address');
-          addressText.textContent = paymentAddress;
-          paymentAddressDiv.style.display = 'block';
-        } else {
-          paymentAddressDiv.style.display = 'none';
-          addressText.textContent = '';
-        }
-      });
-    </script>
+    } catch (err) {
+      document.getElementById('dynamic-payment-methods').innerHTML = '<div style="color:red">Unable to load payment methods.</div>';
+    }
+  }
+  window.addEventListener('DOMContentLoaded', loadPaymentOptions);
+</script>
   </body>
 </html>
